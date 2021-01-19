@@ -55,9 +55,6 @@ endfunction
 
 function! VimFiles#CreateDirThemplate() abort
     call inputsave()
-    let l:name = input('Enter File Name: ')
-    call inputrestore()
-    call inputsave()
     let l:themplate = input('Enter themplate Name: ')
     call inputrestore()
     call s:MKDir(g:vimFilesThemplatesRootPathDir, 0)
