@@ -19,9 +19,9 @@ The other way would be cloning the repository.
 
 ### Examples
 With vim open in the path `~/Projects/test`, I call the `VimFiles#CreateDir()` function, and enter `python/component`, the result is that now I have this complete path `~/Projects/test/python/component`
-
+![Graphical Explication Directory Create](https://raw.githubusercontent.com/SergioRibera/vim-files/main/doc/dir.gif)
 With vim open in the path `~/Projects/test`, I call the `VimFiles#CreateFile()` function, and enter `python/view/User.py`, the result is that now the file is created and also opened, if not have the necessary folders created, the function will create them automatically and recursively
-
+![Graphical Explication File Create](https://raw.githubusercontent.com/SergioRibera/vim-files/main/doc/file.gif)
 ### Example Configurations
 ``` Vim
 noremap <leader>cd :call VimFiles#CreateDir()<Cr>
