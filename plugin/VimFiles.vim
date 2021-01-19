@@ -13,7 +13,7 @@ else
 endif
 
 function! s:MKDir(...) abort
-    if !a:0 || stridx('`+', a:1[0])!=-1 || a:1=~#'\v\\@<![ *?[%#]' || isdirectory(a:1) || filereadable(a:1) || isdirectory(fnamemodify(a:1, ':p:h'))
+    if isdirectory(a:1)
         if a:2 =~# 1
             echoerr "The input is not directory"
         endif
