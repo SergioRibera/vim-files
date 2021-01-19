@@ -32,8 +32,24 @@ With vim open in the path `~/Projects/test`, I call the `VimFiles#CreateFile()` 
 ![Graphical Explication File Create](https://raw.githubusercontent.com/SergioRibera/vim-files/main/doc/file.gif)
 ### Example Configurations
 ``` Vim
+" Dictioinary of Dir Themplates
+let g:vimFilesThemplatesDir = {
+    \ 'react-native': 'react/native.txt',
+    \ 'html-bootstrap': 'web/html/bootstrap.txt'
+    \}
+" Dictionary of Files Themplates
+let g:vimFilesThemplatesFiles = {
+    \ 'react-component': 'react/component.txt'
+    \}
+
+" Simple Created Relative Directory
 noremap <leader>cd :call VimFiles#CreateDir()<Cr>
+" Simple Created Relative File
 noremap <leader>cf :call VimFiles#CreateFile()<Cr>
+" Create Directories based in themplate
+noremap <leader>cdd :call VimFiles#CreateDirThemplate()<Cr>
+" Create File based in themplate
+noremap <leader>cff :call VimFiles#CreateFileThemplate()<Cr>
 ```
 ### **Please report all bugs and problems**
 Thanks for install this tool, for see more visit [my web](https://sergioribera.com) (Very soon I will add an app store)
