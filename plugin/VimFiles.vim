@@ -60,7 +60,7 @@ function! VimFiles#CreateDirThemplate() abort
     call s:MKDir(g:vimFilesThemplatesRootPathDir, 0)
 
     if has_key(g:vimFilesThemplatesDir, l:themplate)
-        let l:vimThemplatePath = fnamemodify(g:vimFilesThemplatesRootPathDir . '/' . g:vimFilesThemplatesFiles[l:themplate], ':p')
+        let l:vimThemplatePath = fnamemodify(g:vimFilesThemplatesRootPathDir . '/' . g:vimFilesThemplatesDir[l:themplate], ':p')
         for line in readfile(l:vimThemplate)
             let l:vimThemplate = fnamemodify(l:vimThemplatePath . '/' . line, ':p')
             call s:MKDir(l:vimThemplate, 0)
