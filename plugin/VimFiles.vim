@@ -172,13 +172,13 @@ endfunction
 "
 "
 " Create Dir
-function! VimFiles#Dir#Create() abort
+function! VimFiles#DirCreate() abort
     let l:dir = s:GetInput('Enter Directory Name: ')
     call s:MKDir(l:dir, 0)
 endfunction
 "
 " Create Dirs based on Themplate
-function! VimFiles#Dir#FromTemplate() abort
+function! VimFiles#DirCreateFromTemplate() abort
     let l:themplate = input('Enter themplate Name: ')
     call s:DirThemplate(l:themplate)
 endfunction
@@ -186,23 +186,23 @@ endfunction
 " ________ Files Functions ________
 "
 "
-function! VimFiles#File#Create() abort                       " To create File
+function! VimFiles#FileCreate() abort                       " To create File
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, -1)
 endfunction
-function! VimFiles#File#CreateTab() abort                    " To create File and Open in new Tab
+function! VimFiles#FileCreateTab() abort                    " To create File and Open in new Tab
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 0)
 endfunction
-function! VimFiles#File#CreateVS() abort                     " To create File and Open in Vertical Split
+function! VimFiles#FileCreateVS() abort                     " To create File and Open in Vertical Split
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 1)
 endfunction
-function! VimFiles#File#CreateHS() abort                     " To create File and Open in Horizontal Split
+function! VimFiles#FileCreateHS() abort                     " To create File and Open in Horizontal Split
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 2)
 endfunction
-function! VimFiles#File#CreateCW() abort                     " To create File and Open in current windows
+function! VimFiles#FileCreateCW() abort                     " To create File and Open in current windows
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 3)
 endfunction
@@ -211,27 +211,27 @@ endfunction
 "
 "
 " Create Files Based on Template
-function! VimFiles#File#Template#Create() abort
+function! VimFiles#FileTemplateCreate() abort
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, -1)
 endfunction
-function! VimFiles#File#Template#CreateTab() abort                  " Open on new Tab
+function! VimFiles#FileTemplateCreateTab() abort                  " Open on new Tab
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 0)
 endfunction
-function! VimFiles#File#Themplate#CreateVS() abort                  " Open on Vertical Split
+function! VimFiles#FileTemplateCreateVS() abort                  " Open on Vertical Split
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 1)
 endfunction
-function! VimFiles#File#Themplate#CreateHS() abort                  " Open on Horizontal Split
+function! VimFiles#FileTemplateCreateHS() abort                  " Open on Horizontal Split
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 2)
 endfunction
-function! VimFiles#File#Themplate#CreateCW() abort                  " Open in current windows
+function! VimFiles#FileTemplateCreateCW() abort                  " Open in current windows
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 3)
@@ -242,12 +242,12 @@ endfunction
 "
 " Rename Current File
 "
-function! VimFiles#Manipulate#File#RenameCurrentFile() abort
+function! VimFiles#ManipulateRenameCurrentFile() abort
     let l:newname = s:GetInput('Enter New Name: ')
     call s:RenameFile(expand('%:p'), l:newname)
 endfunction
 " Rename File
-function! VimFiles#Manipulate#File#RenameFile() abort
+function! VimFiles#ManipulateRenameFile() abort
     let l:oldfile = s:GetInput('Enter the file to rename')
     let l:newname = s:GetInput('Enter New Name: ')
     call s:RenameFile(s:getRelativeFile(l:oldfile), l:newname)
@@ -255,12 +255,12 @@ endfunction
 "
 " Move Current File
 "
-function! VimFiles#Manipulate#File#MoveCurrentFile() abort
+function! VimFiles#ManipulateMoveCurrentFile() abort
     let l:dfile = s:GetInput('Enter File Destination: ')
     call s:Move(expand('%:p'), l:dfile)
 endfunction
 " Move another file
-function! VimFiles#Manipulate#File#MoveFile() abort
+function! VimFiles#ManipulateMoveFile() abort
     let l:cfile = s:GetInput('Enter File To Move: ')
     let l:dfile = s:GetInput('Enter File Destination: ')
     call s:Move(s:getRelativeFile(l:cfile), l:dfile)
@@ -268,20 +268,11 @@ endfunction
 "
 " Delete Current File
 "
-function! VimFiles#Manipulate#File#DeleteCurrent() abort
+function! VimFiles#ManipulateDeleteCurrentFile() abort
     call s:DeleteFile(expand('%:p'))
 endfunction
 " Delete another File
-function! VimFiles#Manipulate#File#Delete() abort
+function! VimFiles#ManipulateDeleteFile() abort
     let l:filename = s:GetInput('Enter File to Delete: ')
     call s:DeleteFile(l:filename)
 endfunction
-
-" -------------------------------------- Auto Commands --------------------------------------
-"
-" Automate Reload NerdTree on change buffer or save
-" _________________________________________________
-"
-"autocmd CmdlineEnter * <C-x><C-f>
-"command VimFilesCreateDir execute ":call VimFiles#CreateDir()"
-"command -nargs=1 -complete=file MyCommand echomsg <q-args>
