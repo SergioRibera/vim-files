@@ -80,12 +80,33 @@ function! s:Move(src, dest)
     call s:RenameFile(a:src, a:dest)
     filetype detect
 endfunction
+
+function! GetCompletionDirTemplates(ArgLead, CmdLine, ...)
+    let myList = keys(g:vimFilesThemplatesDir)
+    return filter(myList, 'v:val =~ "^'. a:ArgLead .'"')
+endfunction
+function! GetCompletionFileTemplates(ArgLead, CmdLine, ...)
+    let myList = keys(g:vimFilesThemplatesFiles)
+    return filter(myList, 'v:val =~ "^'. a:ArgLead .'"')
+endfunction
+
 " Module for capture user input
 function! s:GetInput(text)
     call inputsave()
     let l:input = input(a:text, '', 'file')
     call inputrestore()
     return l:input
+endfunction
+" Module for capture user input with custom autocomlpetion
+function! s:GetInputTemplate(text, template)
+    let l:input = ""
+    call inputsave()
+    if a:template == 0
+        let l:input = input(a:text, '', 'customlist,GetCompletionDirTemplates')
+    else
+        let l:input = input(a:text, '', 'customlist,GetCompletionFileTemplates')
+    endif
+    call inputrestore()
 endfunction
 
 " Function to create File Path
@@ -179,7 +200,7 @@ endfunction
 "
 " Create Dirs based on Themplate
 function! VimFiles#DirCreateFromTemplate() abort
-    let l:themplate = input('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 0)
     call s:DirThemplate(l:themplate)
 endfunction
 "
@@ -213,27 +234,27 @@ endfunction
 " Create Files Based on Template
 function! VimFiles#FileTemplateCreate() abort
     let l:name = s:GetInput('Enter File Name: ')
-    let l:themplate = s:GetInput('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 1)
     call s:FileThemplate(l:name, l:themplate, -1)
 endfunction
 function! VimFiles#FileTemplateCreateTab() abort                  " Open on new Tab
     let l:name = s:GetInput('Enter File Name: ')
-    let l:themplate = s:GetInput('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 1)
     call s:FileThemplate(l:name, l:themplate, 0)
 endfunction
 function! VimFiles#FileTemplateCreateVS() abort                  " Open on Vertical Split
     let l:name = s:GetInput('Enter File Name: ')
-    let l:themplate = s:GetInput('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 1)
     call s:FileThemplate(l:name, l:themplate, 1)
 endfunction
 function! VimFiles#FileTemplateCreateHS() abort                  " Open on Horizontal Split
     let l:name = s:GetInput('Enter File Name: ')
-    let l:themplate = s:GetInput('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 1)
     call s:FileThemplate(l:name, l:themplate, 2)
 endfunction
 function! VimFiles#FileTemplateCreateCW() abort                  " Open in current windows
     let l:name = s:GetInput('Enter File Name: ')
-    let l:themplate = s:GetInput('Enter themplate Name: ')
+    let l:themplate = s:GetInputTemplate('Enter themplate Name: ', 1)
     call s:FileThemplate(l:name, l:themplate, 3)
 endfunction
 "
