@@ -42,6 +42,11 @@ function! s:MKDir(...) abort
     endif
     call mkdir(fnamemodify(a:1, ':p'), "p")
 endfunction
+" Get Relative Path
+function! s:getRelativeFile(name)
+    let l:name = getcwd().s:separator().a:name
+    return fnamemodify(l:name, ':p')
+endfunction
 " Use Correct Separator
 function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
@@ -49,57 +54,36 @@ endfunction
 " Rename File
 function! s:RenameFile(curfile, name)
     let l:curfile = a:curfile
-    let l:curfilepath = expand("%:p:h")
-    let l:newname = l:curfilepath . "/" . a:name
+    let l:curfilepath = getcwd()
+    let l:newname = s:getRelativeFile(a:name)
+    call s:MKDir(fnamemodify(l:newname, ':p:h'))
     let v:errmsg = ""
     silent! exe "saveas " . l:newname
     if v:errmsg =~# '^$\|^E329'
-        if expand("%:p") !=# l:curfile && filewritable(expand("%:p"))
-            silent exe "bwipe! " . l:curfile
-            if delete(l:curfile)
-                echoerr "Could not delete " . l:curfile
-            endif
-        endif
+        s:DeleteFile(l:curfile)
     else
         echoerr v:errmsg
     endif
 endfunction
 function! s:DeleteFile(f)
-    delete(a:f)
-    if !bufloaded(s:file)
-        echoerr 'Failed to delete "'.a:f.'"'
+    let l:file =s:getRelativeFile(a:f) 
+    if filewritable(l:file)
+        silent exe "bwipe! " . l:file
+        if delete(l:file)
+            echoerr "Could not delete " . l:file
+        endif
     endif
 endfunction
 function! s:RemoveDir(d)
 endfunction
 function! s:Move(src, dest)
-    let s:src = expand(a:src)
-    let s:dst = expand(a:dest)
-    if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# '[\\/]'
-        let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) . fnamemodify(s:src, ':t')
-    endif
-    call s:MKDir(fnamemodify(s:dst, ':h'))
-    let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '')
-    if s:fcall('filereadable', s:dst)
-      exe 'keepalt saveas '.s:fnameescape(s:dst)
-    elseif s:fcall('filereadable', s:src) && EunuchRename(s:src, s:dst)
-      echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"'
-    else
-      setlocal modified
-      exe 'keepalt saveas! '.s:fnameescape(s:dst)
-      if s:src !=# expand('%:p')
-        execute 'bwipe '.s:fnameescape(s:src)
-      endif
-      filetype detect
-    endif
-    unlet s:src
-    unlet s:dst
+    call s:RenameFile(a:src, a:dest)
     filetype detect
 endfunction
 " Module for capture user input
 function! s:GetInput(text)
     call inputsave()
-    let l:input = input(a:text, expand('%'), 'file')
+    let l:input = input(a:text, '', 'file')
     call inputrestore()
     return l:input
 endfunction
@@ -107,8 +91,7 @@ endfunction
 " Function to create File Path
 function! s:CreateFile(filename, openMode)
     if !empty('a:filename')
-        let l:name = getcwd().s:separator().a:filename
-        let l:name = fnamemodify(l:name, ':p')
+        let l:name = s:getRelativeFile(a:filename)
         call s:MKDir(fnamemodify(l:name, ':h'), 0)
         call s:OpenNewFileMode(l:name, a:openMode)
     endif
@@ -139,7 +122,17 @@ endfunction
 " Replace text for any value is finded
 "
 function! s:ReplaceText(text, filename)
-    return substitute(a:text, "#FILENAME#", a:filename, "")
+    let l:textProcesed = a:text
+    if stridx(l:textProcesed, "#FILENAME#UPPER#") >= 0
+        let l:textProcesed = substitute(l:textProcesed, "#FILENAME#UPPER#", toupper(a:filename), "")
+    endif
+    if stridx(l:textProcesed, "#FILENAME#LOWER#") >= 0
+        let l:textProcesed = substitute(l:textProcesed, "#FILENAME#LOWER#", tolower(a:filename), "")
+    endif
+    if stridx(l:textProcesed, "#FILENAME#") >= 0
+        let l:textProcesed = substitute(l:textProcesed, "#FILENAME#", a:filename, "")
+    endif
+    return l:textProcesed
 endfunction
 "
 " Make Themplate Dirs
@@ -175,64 +168,70 @@ endfunction
 "--------------------------------------------- Plublic Functions ---------------------------------------------
 "
 "
-" ________ Simple Functions ________
+" ________ Directory Functions ________
 "
 "
-function! VimFiles#CreateDir() abort                        " To create Dir
+" Create Dir
+function! VimFiles#Dir#Create() abort
     let l:dir = s:GetInput('Enter Directory Name: ')
     call s:MKDir(l:dir, 0)
 endfunction
-function! VimFiles#CreateFile() abort                       " To create File
+"
+" Create Dirs based on Themplate
+function! VimFiles#Dir#FromTemplate() abort
+    let l:themplate = input('Enter themplate Name: ')
+    call s:DirThemplate(l:themplate)
+endfunction
+"
+" ________ Files Functions ________
+"
+"
+function! VimFiles#File#Create() abort                       " To create File
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, -1)
 endfunction
-function! VimFiles#CreateFileTab() abort                    " To create File and Open in new Tab
+function! VimFiles#File#CreateTab() abort                    " To create File and Open in new Tab
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 0)
 endfunction
-function! VimFiles#CreateFileVS() abort                     " To create File and Open in Vertical Split
+function! VimFiles#File#CreateVS() abort                     " To create File and Open in Vertical Split
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 1)
 endfunction
-function! VimFiles#CreateFileHS() abort                     " To create File and Open in Horizontal Split
+function! VimFiles#File#CreateHS() abort                     " To create File and Open in Horizontal Split
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 2)
 endfunction
-function! VimFiles#CreateFileCW() abort                     " To create File and Open in current windows
+function! VimFiles#File#CreateCW() abort                     " To create File and Open in current windows
     let l:name = s:GetInput('Enter File Name: ')
     call s:CreateFile(l:name, 3)
 endfunction
 "
-" ________ Themplate Functions ________
+" ________ Template Functions ________
 "
 "
-" Create Dirs based on Themplate
-function! VimFiles#CreateDirThemplate() abort
-    let l:themplate = input('Enter themplate Name: ')
-    call s:DirThemplate(l:themplate)
-endfunction
-" Create Files Based on Themplate
-function! VimFiles#CreateFileThemplate() abort
+" Create Files Based on Template
+function! VimFiles#File#Template#Create() abort
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, -1)
 endfunction
-function! VimFiles#CreateFileThemplateTab() abort                  " Open on new Tab
+function! VimFiles#File#Template#CreateTab() abort                  " Open on new Tab
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 0)
 endfunction
-function! VimFiles#CreateFileThemplateVS() abort                  " Open on Vertical Split
+function! VimFiles#File#Themplate#CreateVS() abort                  " Open on Vertical Split
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 1)
 endfunction
-function! VimFiles#CreateFileThemplateHS() abort                  " Open on Horizontal Split
+function! VimFiles#File#Themplate#CreateHS() abort                  " Open on Horizontal Split
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 2)
 endfunction
-function! VimFiles#CreateFileThemplateCW() abort                  " Open in current windows
+function! VimFiles#File#Themplate#CreateCW() abort                  " Open in current windows
     let l:name = s:GetInput('Enter File Name: ')
     let l:themplate = s:GetInput('Enter themplate Name: ')
     call s:FileThemplate(l:name, l:themplate, 3)
@@ -241,14 +240,40 @@ endfunction
 " ________ Manipulate Files ________
 "
 "
-" Rename File
-function! VimFiles#RenameCurrentFile() abort
+" Rename Current File
+"
+function! VimFiles#Manipulate#File#RenameCurrentFile() abort
     let l:newname = s:GetInput('Enter New Name: ')
     call s:RenameFile(expand('%:p'), l:newname)
 endfunction
-
-function! VimFiles#DeleteFile() abort
-    let l:filename = s:GetInput('Enter Directory to Delete: ')
+" Rename File
+function! VimFiles#Manipulate#File#RenameFile() abort
+    let l:oldfile = s:GetInput('Enter the file to rename')
+    let l:newname = s:GetInput('Enter New Name: ')
+    call s:RenameFile(s:getRelativeFile(l:oldfile), l:newname)
+endfunction
+"
+" Move Current File
+"
+function! VimFiles#Manipulate#File#MoveCurrentFile() abort
+    let l:dfile = s:GetInput('Enter File Destination: ')
+    call s:Move(expand('%:p'), l:dfile)
+endfunction
+" Move another file
+function! VimFiles#Manipulate#File#MoveFile() abort
+    let l:cfile = s:GetInput('Enter File To Move: ')
+    let l:dfile = s:GetInput('Enter File Destination: ')
+    call s:Move(s:getRelativeFile(l:cfile), l:dfile)
+endfunction
+"
+" Delete Current File
+"
+function! VimFiles#Manipulate#File#DeleteCurrent() abort
+    call s:DeleteFile(expand('%:p'))
+endfunction
+" Delete another File
+function! VimFiles#Manipulate#File#Delete() abort
+    let l:filename = s:GetInput('Enter File to Delete: ')
     call s:DeleteFile(l:filename)
 endfunction
 
