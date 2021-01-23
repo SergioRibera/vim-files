@@ -107,6 +107,7 @@ function! s:GetInputTemplate(text, template)
         let l:input = input(a:text, '', 'customlist,GetCompletionFileTemplates')
     endif
     call inputrestore()
+    return l:input
 endfunction
 
 " Function to create File Path
