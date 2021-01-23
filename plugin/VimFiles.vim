@@ -60,7 +60,7 @@ function! s:RenameFile(curfile, name)
     let v:errmsg = ""
     silent! exe "saveas " . l:newname
     if v:errmsg =~# '^$\|^E329'
-        s:DeleteFile(l:curfile)
+        call s:DeleteFile(l:curfile)
     else
         echoerr v:errmsg
     endif
@@ -68,7 +68,9 @@ endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
     if filewritable(l:file)
-        silent exe "bwipe! " . l:file
+        if expand("%:p") != l:file
+            silent exe "bwipe! " . l:file
+        endif
         if delete(l:file)
             echoerr "Could not delete " . l:file
         endif
