@@ -59,11 +59,7 @@ function! s:RenameFile(curfile, name)
     call s:MKDir(fnamemodify(l:newname, ':p:h'))
     let v:errmsg = ""
     silent! exe "saveas " . l:newname
-    if v:errmsg =~# '^$\|^E329'
-        call s:DeleteFile(l:curfile)
-    else
-        echoerr v:errmsg
-    endif
+    call s:DeleteFile(l:curfile)
 endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
