@@ -62,16 +62,14 @@ function! s:RenameFile(curfile, name)
 endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
-    if filewritable(l:file)
-        "if expand("%:p") != l:file
-            "silent exe bwipe! " . l:file
-        "endif
-        "if delete(l:file)
-            "echoerr Could not delete " . l:file
-        "endif
-        execute "bdelete " . l:file
-        call delete(l:file)
-    endif
+    "if expand("%:p") != l:file
+        "silent exe bwipe! " . l:file
+    "endif
+    "if delete(l:file)
+        "echoerr Could not delete " . l:file
+    "endif
+    execute "bdelete " . l:file
+    call delete(l:file)
 endfunction
 function! s:RemoveDir(d)
 endfunction
