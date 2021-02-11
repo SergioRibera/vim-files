@@ -58,7 +58,7 @@ function! s:RenameFile(curfile, name)
     let l:newname = s:getRelativeFile(a:name)
     call s:MKDir(fnamemodify(l:newname, ':p:h'))
     silent! exe "saveas " . l:newname
-    call s:DeleteFile(l:curfile)
+    call s:DeleteFile(a:curfile)
 endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
