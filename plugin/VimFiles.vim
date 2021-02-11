@@ -57,26 +57,26 @@ function! s:RenameFile(curfile, name)
     let l:curfilepath = getcwd()
     let l:newname = s:getRelativeFile(a:name)
     call s:MKDir(fnamemodify(l:newname, ':p:h'))
-    let v:errmsg = ""
     silent! exe "saveas " . l:newname
     call s:DeleteFile(l:curfile)
 endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
     if filewritable(l:file)
-        if expand("%:p") != l:file
-            silent exe "bwipe! " . l:file
-        endif
-        if delete(l:file)
-            echoerr "Could not delete " . l:file
-        endif
+        "if expand("%:p") != l:file
+            "silent exe bwipe! " . l:file
+        "endif
+        "if delete(l:file)
+            "echoerr Could not delete " . l:file
+        "endif
+        execute "bdelete " . l:file
+        call delete(l:file)
     endif
 endfunction
 function! s:RemoveDir(d)
 endfunction
 function! s:Move(src, dest)
     call s:RenameFile(a:src, a:dest)
-    filetype detect
 endfunction
 
 function! GetCompletionDirTemplates(ArgLead, CmdLine, ...)
@@ -132,7 +132,7 @@ function! s:OpenNewFileMode(filename, openMode)
         execute "new ".a:filename
     endif
     if g:vimFilesOpenMode == 3
-        execute "enew ".a:filename
+        execute "bd!|e ".a:filename
     endif
     let g:vimFilesOpenMode = l:vimFilesOpenMode
 endfunction
