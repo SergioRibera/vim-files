@@ -88,7 +88,7 @@ function! s:MoveFile(src, dest)
     call s:RenameFile(a:src, a:dest)
 endfunction
 function! s:MoveDir(inDir, outDir)
-    call s:RenameDir(a:inCur, a:outDir)
+    call s:RenameDir(a:inDir, a:outDir)
 endfunction
 
 function! GetCompletionDirTemplates(ArgLead, CmdLine, ...)
