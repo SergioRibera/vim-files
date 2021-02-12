@@ -23,7 +23,7 @@ if !exists('g:vimFilesOpenMode')
     let g:vimFilesOpenMode = 0
 endif
 " Auto Comfirm delete Folder
-if !exist('g:vimFiles_AutoConfirmDeleteFolder')
+if !exists('g:vimFiles_AutoConfirmDeleteFolder')
     let g:vimFiles_AutoConfirmDeleteFolder = v:false
 endif
 
