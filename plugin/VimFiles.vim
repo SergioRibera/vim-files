@@ -54,19 +54,21 @@ function! s:RenameFile(curfile, name)
     let l:curfilepath = getcwd()
     let l:newname = s:getRelativeFile(a:name)
     call s:MKDir(fnamemodify(l:newname, ':p:h'))
-    silent! exe "saveas " . l:newname
-    call s:DeleteFile(a:curfile)
+    silent! exe "saveas " . l:newname | call s:DeleteFile(a:curfile)
 endfunction
 function! s:DeleteFile(f)
     let l:file =s:getRelativeFile(a:f) 
-    "if expand("%:p") != l:file
-        "silent exe bwipe! " . l:file
-    "endif
-    "if delete(l:file)
-        "echoerr Could not delete " . l:file
-    "endif
-    execute "bdelete " . l:file
-    call delete(l:file)
+    execute "bdelete! " . l:file | call delete(l:file)
+endfunction
+" Rename Dir
+function! s:RenameDir(curDir, outDir)
+    let l:cDir = s:getRelativeFile(a:curDir)
+    let l:oDir = s:getRelativeFile(a:outDir)
+    if !s:isLinux
+        silent execute "!move ". shellescape(l:cDir)." ".shellescape(l:oDir)
+    else
+        silent execute "!mv ". shellescape(l:cDir)." ".shellescape(l:oDir)
+    endif
 endfunction
 function! s:RemoveDir(d)
     let l:dir = s:getRelativeFile(a:d)
@@ -77,14 +79,17 @@ function! s:RemoveDir(d)
     endif
     if tolower(l:confirm) == "y" || tolower(l:confirm) == "yes"
         if !s:isLinux
-            execute "!rmdir /s/q " . shellescape(l:dir)
+            silent execute "!rmdir /s/q " . shellescape(l:dir)
         else
-            execute "!rm -rf " . shellescape(l:dir)
+            silent execute "!rm -rf " . shellescape(l:dir)
         endif
     endif
 endfunction
-function! s:Move(src, dest)
+function! s:MoveFile(src, dest)
     call s:RenameFile(a:src, a:dest)
+endfunction
+function! s:MoveDir(inDir, outDir)
+    call s:RenameDir(a:inCur, a:outDir)
 endfunction
 
 function! GetCompletionDirTemplates(ArgLead, CmdLine, ...)
@@ -135,16 +140,16 @@ function! s:OpenNewFileMode(filename, openMode)
         let g:vimFilesOpenMode = a:openMode
     endif
     if g:vimFilesOpenMode == 0 " tab
-        execute "tabnew ".a:filename
+        silent execute "tabnew ".a:filename
     endif
     if g:vimFilesOpenMode == 1 " vsplit
-        execute "vnew ".a:filename
+        silent execute "vnew ".a:filename
     endif
     if g:vimFilesOpenMode == 2 " hsplit
-        execute "new ".a:filename
+        silent execute "new ".a:filename
     endif
     if g:vimFilesOpenMode == 3
-        execute ".bd!|e ".a:filename
+        silent execute ".bd!|e ".a:filename
     endif
     let g:vimFilesOpenMode = l:vimFilesOpenMode
 endfunction
