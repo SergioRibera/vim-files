@@ -57,7 +57,7 @@ function! s:RenameFile(curfile, name)
     silent! exe "saveas " . l:newname | call s:DeleteFile(a:curfile)
 endfunction
 function! s:DeleteFile(f)
-    execute "bdelete! " . a:f | call delete(a:f)
+    call delete(a:f)
 endfunction
 " Rename Dir
 function! s:RenameDir(curDir, outDir)
