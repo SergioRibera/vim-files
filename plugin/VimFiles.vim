@@ -144,7 +144,7 @@ function! s:OpenNewFileMode(filename, openMode)
         execute "new ".a:filename
     endif
     if g:vimFilesOpenMode == 3
-        execute "bd!|e ".a:filename
+        execute ".bd!|e ".a:filename
     endif
     let g:vimFilesOpenMode = l:vimFilesOpenMode
 endfunction
