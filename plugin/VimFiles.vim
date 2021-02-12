@@ -223,6 +223,33 @@ function! VimFiles#DirCreateFromTemplate() abort
     call s:DirThemplate(l:themplate)
 endfunction
 "
+" ________ Manipulate Dirs ________
+"
+"
+" Rename Dir
+"
+function! VimFiles#ManipulateRenameDir() abort
+    let l:cDir = s:GetInput('Enter Dir to Rename: ')
+    let l:dDir = s:GetInput('Enter new Name: ')
+    call s:RenameDir(l:cDir, l:dDir)
+endfunction
+"
+" Move Dir
+"
+function! VimFiles#ManipulateMoveDir() abort
+    let l:cDir = s:GetInput('Enter Dir to Move: ')
+    let l:dDir = s:GetInput('Enter new relative path: ')
+    call s:MoveDir(l:cDir, l:dDir)
+endfunction
+"
+" Delete Dir
+"
+function! VimFiles#ManipulateDeleteDir() abort
+    let l:cDir = s:GetInput('Enter Dir to Delete: ')
+    call s:RemoveDir(l:cDir)
+endfunction
+"
+"
 " ________ Files Functions ________
 "
 "
