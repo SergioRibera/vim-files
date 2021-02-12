@@ -3,35 +3,32 @@ if exists('g:nvim-files') | finish | endif
 "--------------------------------- Verify vars ----------------------------------------
 "
 " Themplate Root Path
-if exists('g:vimFilesThemplatesRootPathFile')
-    let g:vimFilesThemplatesRootPathFile = g:vimFilesThemplatesRootPathFile
-else
+if !exists('g:vimFilesThemplatesRootPathFile')
     let g:vimFilesThemplatesRootPathFile = '~/.config/nvim/themplates/files'
 endif
 " Themplate Root Directory
-if exists('g:vimFilesThemplatesRootPathDir')
-    let g:vimFilesThemplatesRootPathDir = g:vimFilesThemplatesRootPathDir
-else
+if !exists('g:vimFilesThemplatesRootPathDir')
     let g:vimFilesThemplatesRootPathDir = '~/.config/nvim/themplates/dirs'
 endif
 " Dictionary of themplates Dir
-if exists('g:vimFilesThemplatesDir')
-    let g:vimFilesThemplatesDir = g:vimFilesThemplatesDir
-else
+if !exists('g:vimFilesThemplatesDir')
     let g:vimFilesThemplatesDir = { }
 endif
 " Dictionary of themplate Files
-if exists('g:vimFilesThemplatesFiles')
-    let g:vimFilesThemplatesFiles = g:vimFilesThemplatesFiles
-else
+if !exists('g:vimFilesThemplatesFiles')
     let g:vimFilesThemplatesFiles = { }
 endif
 " Open mode
-if exists('g:vimFilesOpenMode')
-    let g:vimFilesOpenMode = g:vimFilesOpenMode
-else
+if !exists('g:vimFilesOpenMode')
     let g:vimFilesOpenMode = 0
 endif
+" Auto Comfirm delete Folder
+if !exist('g:vimFiles_AutoConfirmDeleteFolder')
+    let g:vimFiles_AutoConfirmDeleteFolder = v:false
+endif
+
+
+let s:isLinux = !has("win32")
 
 "-------------------------------------- Private Functions -------------------------------------
 "
@@ -72,6 +69,19 @@ function! s:DeleteFile(f)
     call delete(l:file)
 endfunction
 function! s:RemoveDir(d)
+    let l:dir = s:getRelativeFile(a:d)
+    if !g:vimFiles_AutoConfirmDeleteFolder
+        let l:confirm = s:GetInput("Folder ".a:d." and all its contents will be permanently deleted, are you sure you want to continue? (y/n): ")
+    else
+        let l:confirm = "y"
+    endif
+    if tolower(l:confirm) == "y" || tolower(l:confirm) == "yes"
+        if !s:isLinux
+            execute "!rmdir /s/q " . shellescape(l:dir)
+        else
+            execute "!rm -rf " . shellescape(l:dir)
+        endif
+    endif
 endfunction
 function! s:Move(src, dest)
     call s:RenameFile(a:src, a:dest)
@@ -111,7 +121,9 @@ function! s:CreateFile(filename, openMode)
     if !empty('a:filename')
         let l:name = s:getRelativeFile(a:filename)
         call s:MKDir(fnamemodify(l:name, ':h'), 0)
-        call s:OpenNewFileMode(l:name, a:openMode)
+        if writefile([], l:name) == 0
+            call s:OpenNewFileMode(l:name, a:openMode)
+        endif
     endif
 endfunction
 " Function to open buffer file
@@ -171,12 +183,11 @@ endfunction
 function! s:FileThemplate(filename, themplate, openmode)
     if has_key(g:vimFilesThemplatesFiles, a:themplate)
         let l:vimThemplate = fnamemodify(g:vimFilesThemplatesRootPathFile . s:separator() . g:vimFilesThemplatesFiles[a:themplate], ':p')
-        let l:content = ''
+        let l:content = []
         for line in readfile(l:vimThemplate)
-            let l:content .= s:ReplaceText(line, fnamemodify(a:filename, ':t:r')) . "\x0a"
+            call add(l:content, s:ReplaceText(line, fnamemodify(a:filename, ':t:r')))
         endfor
         call s:CreateFile(a:filename, a:openmode)
-        put! = l:content
     else
         echoerr "Not found Themplate name"
         return
