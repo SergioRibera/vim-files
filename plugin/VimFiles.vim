@@ -123,6 +123,8 @@ function! s:CreateFile(filename, openMode)
         call s:MKDir(fnamemodify(l:name, ':h'), 0)
         if writefile([], l:name) == 0
             call s:OpenNewFileMode(l:name, a:openMode)
+        else 
+            echoerr "could not create file: ".a:filename
         endif
     endif
 endfunction
@@ -187,7 +189,11 @@ function! s:FileThemplate(filename, themplate, openmode)
         for line in readfile(l:vimThemplate)
             call add(l:content, s:ReplaceText(line, fnamemodify(a:filename, ':t:r')))
         endfor
-        call s:CreateFile(a:filename, a:openmode)
+        if writefile(l:content, a:filename) == 0
+            call s:CreateFile(a:filename, a:openmode)
+        else 
+            echoerr "could not create file: ".a:filename." with template: ".a:themplate
+        endif
     else
         echoerr "Not found Themplate name"
         return
