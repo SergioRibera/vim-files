@@ -57,7 +57,7 @@ function! s:RenameFile(curfile, name)
     silent! exe "saveas " . l:newname | call s:DeleteFile(a:curfile)
 endfunction
 function! s:DeleteFile(f)
-    call delete(a:f)
+    silent call delete(a:f)
 endfunction
 " Rename Dir
 function! s:RenameDir(curDir, outDir)
@@ -123,13 +123,7 @@ endfunction
 " Function to create File Path
 function! s:CreateFile(filename, openMode)
     if !empty('a:filename')
-        let l:name = s:getRelativeFile(a:filename)
-        call s:MKDir(fnamemodify(l:name, ':h'), 0)
-        if writefile([], l:name) == 0
-            call s:OpenNewFileMode(l:name, a:openMode)
-        else 
-            echoerr "could not create file: ".a:filename
-        endif
+        call s:OpenNewFileMode(a:filename, a:openMode)
     endif
 endfunction
 " Function to open buffer file
@@ -193,7 +187,9 @@ function! s:FileThemplate(filename, themplate, openmode)
         for line in readfile(l:vimThemplate)
             call add(l:content, s:ReplaceText(line, fnamemodify(a:filename, ':t:r')))
         endfor
-        if writefile(l:content, a:filename) == 0
+        let l:name = s:getRelativeFile(a:filename)
+        call s:MKDir(fnamemodify(l:name, ':h'), 0)
+        if writefile(l:content, l:name) == 0
             call s:CreateFile(a:filename, a:openmode)
         else 
             echoerr "could not create file: ".a:filename." with template: ".a:themplate
